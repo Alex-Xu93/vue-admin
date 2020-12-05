@@ -3,6 +3,19 @@ import App from './App.vue'
 import router from './router'
 import './plugins/element.js'
 
+// 导入全局样式
+import './assets/css/global.css'
+// 引入字体图标库css
+import './assets/fonts/iconfont.css'
+
+// 引入axios, 用于请求接口
+import axios from 'axios'
+// 配置接口基准路径
+axios.defaults.baseURL = 'http://localhost:8888/api/private/v1/'
+
+// 在全局对象Vue的原型上添加方法, 可以直接请求接口
+Vue.prototype.$http = axios
+
 Vue.config.productionTip = false
 
 new Vue({
