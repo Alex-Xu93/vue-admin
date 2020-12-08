@@ -10,6 +10,14 @@ import './assets/fonts/iconfont.css'
 
 // 引入axios, 用于请求接口
 import axios from 'axios'
+
+// 配置axios拦截器配置token
+axios.interceptors.request.use(config => {
+  // 为请求头, 添加Token验证的authorization属性;
+  config.headers.Authorization = sessionStorage.getItem('token')
+  return config
+})
+
 // 配置接口基准路径
 axios.defaults.baseURL = 'http://localhost:8888/api/private/v1/'
 

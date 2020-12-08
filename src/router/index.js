@@ -4,6 +4,9 @@ import VueRouter from 'vue-router'
 // 导入子路由
 import Login from '../components/login/Login.vue'
 import Home from '../components/home/Home.vue'
+import Welecom from '../components/welcom/Welcome.vue'
+import Users from '../components/users/Users.vue'
+import Roles from '../components/roles/Roles.vue'
 
 Vue.use(VueRouter)
 
@@ -13,21 +16,46 @@ const routes = [
   // 当打开页面时, '/'的hash路径, 重定向到登录页
   {
     path: '/',
-    redirect: 'login'
+    redirect: '/login'
   },
 
-  // 2. 登录组件/页规则
+  // 3. 登录组件/页规则
   {
     path: '/login',
     name: 'login',
     component: Login
   },
 
-  // 3. home组件/页规则
+  // 4. home组件/页规则, 打开home页, 跳转到welcome页/组件
   {
     path: '/home',
+    redirect: '/welcom',
     name: 'home',
-    component: Home
+    component: Home,
+    // 在home组件内部注册子组件
+    children: [
+      // 欢迎子组件
+      {
+        path: '/welcom',
+        name: 'welcom',
+        component: Welecom
+      },
+
+      // 用户子组件
+      {
+        path: '/users',
+        name: 'users',
+        component: Users
+      },
+
+      // 角色子组件
+      {
+        path: '/roles',
+        name: 'roles',
+        component: Roles
+      }
+
+    ]
   }
 ]
 
@@ -44,7 +72,7 @@ router.beforeEach((to, from, next) => {
   }
 
   // 如果用于请求的是其它页面, 判断sessionStorge中有没有token, 如果有, 放行, 如果没有, 去登录
-  if (sessionStorage.getItem('token').length >= 0) {
+  if (sessionStorage.getItem('token')) {
     next()
   } else {
     // 去登录页面

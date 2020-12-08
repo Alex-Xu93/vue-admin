@@ -43,10 +43,11 @@
 
         <!-- 确认/重置按钮表单Item
         1. 当用户点击登录后, 通过绑定el-form的ref找到表单, 进行表单验证, 验证通过后再发送请求到接口
+        2. 当用户点击重置按钮后, 通过绑定el-form的ref找到该表单,进行表单重置
         -->
         <el-form-item class="btns">
           <el-button type="primary" @click="login">登录</el-button>
-          <el-button type="info">重置</el-button>
+          <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -114,6 +115,11 @@ export default {
         // 2. 调转到home页面
         this.$router.push('home')
       })
+    },
+
+    // 重置表单
+    resetLoginForm() {
+      this.$refs.login_form.resetFields()
     }
   }
 }
