@@ -46,16 +46,12 @@
             label: 当前列的名称
            -->
         <el-table :data="userlist" style="width: 100%" stripe border>
-          <el-table-column type="index" label="#" width="70"> </el-table-column>
-          <el-table-column prop="username" label="姓名" width="150">
-          </el-table-column>
-          <el-table-column prop="email" label="邮箱" width="199">
-          </el-table-column>
-          <el-table-column prop="mobile" label="电话" width="150">
-          </el-table-column>
-          <el-table-column prop="role_name" label="角色" width="170">
-          </el-table-column>
-          <el-table-column label="状态" width="150">
+          <el-table-column type="index" label="#"> </el-table-column>
+          <el-table-column prop="username" label="姓名"> </el-table-column>
+          <el-table-column prop="email" label="邮箱"> </el-table-column>
+          <el-table-column prop="mobile" label="电话"> </el-table-column>
+          <el-table-column prop="role_name" label="角色"> </el-table-column>
+          <el-table-column label="状态">
             <!-- 自定义行
             1: 开关的双重数据绑定到当前自定义行的对象上
             2: 当switch开关的状态改变后, 传递当前自定义行的对象过去, 接收
@@ -105,6 +101,7 @@
                   icon="el-icon-setting"
                   plain
                   size="mini"
+                  @click="showsetUserRoleDialog(scope.row)"
                 ></el-button>
               </el-tooltip>
             </template>
@@ -157,7 +154,7 @@
         </el-form-item>
 
         <el-form-item label="密码" prop="password">
-          <el-input v-model="addUserForm.password"></el-input>
+          <el-input v-model="addUserForm.password" type="password"></el-input>
         </el-form-item>
 
         <el-form-item label="邮箱" prop="email">
@@ -212,6 +209,38 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editUser()">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 分配用户权限对话框 -->
+    <el-dialog
+      title="分配用户角色"
+      :visible.sync="setUserRoleDialogVisible"
+      width="50%"
+    >
+      <p :class="['fontSize']">当前的用户: {{ userInfo.username }}</p>
+      <p :class="['fontSize']">当前的角色: {{ userInfo.role_name }}</p>
+      <p :class="['fontSize']">
+        分配新角色
+        <!-- 下拉框
+        双向数据绑定到selectedRoleId 选择的角色id中
+        遍历角色列表数组生成多个el-option
+        显示信息为遍历出数组的roleName
+        把数组的id点击后绑定到selectedRoleId中
+         -->
+        <el-select v-model="selectedRoleId" placeholder="请选择">
+          <el-option
+            v-for="item in roleList"
+            :key="item.id"
+            :label="item.roleName"
+            :value="item.id"
+          >
+          </el-option>
+        </el-select>
+      </p>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setUserRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setUserRole">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -315,7 +344,19 @@ export default {
           { required: true, message: '请输入邮箱', trigger: 'blur' },
           { validator: checkMobile, trigger: 'blur' }
         ]
-      }
+      },
+
+      // 分配用户权限对话框显示/隐藏
+      setUserRoleDialogVisible: false,
+
+      // 当前行用户的信息对象
+      userInfo: {},
+
+      // 所有角色的列表数组
+      roleList: [],
+
+      // selectedRoleId, 点击后保存选择的角色id
+      selectedRoleId: ''
     }
   },
   created() {
@@ -533,6 +574,61 @@ export default {
           duration: 800
         })
       }
+    },
+
+    // 显示分配用户权限对话框
+    async showsetUserRoleDialog(row) {
+      // 保存当前用户的信息到数据中
+      this.userInfo = row
+
+      // 在显示对话框之前, 请求接口, 获取到所有角色列表
+      const { data: res } = await this.$http.get('roles')
+
+      if (res.meta.status !== 200) {
+        return this.$message({
+          type: 'danger',
+          message: '获取角色列表失败!',
+          duration: 800
+        })
+      }
+
+      this.roleList = res.data
+
+      this.setUserRoleDialogVisible = true
+    },
+
+    // 保存当前用户的新角色
+    async setUserRole() {
+      const { data: res } = await this.$http.put(
+        `users/${this.userInfo.id}/role`,
+        {
+          rid: this.selectedRoleId
+        }
+      )
+      if (res.meta.status !== 200) {
+        // 设置用户新角色失败
+        return this.$message({
+          type: 'danger',
+          message: '设置用户新角色失败!',
+          duration: 800
+        })
+      }
+
+      // 提示成功信息
+      this.$message({
+        type: 'success',
+        message: '设置用户新角色成功!',
+        duration: 800
+      })
+
+      // 隐藏分配当前用户权限对话框
+      this.setUserRoleDialogVisible = false
+
+      // 刷新用户列表
+      this.getUserList()
+
+      // 清空选中selectedRoleId的值
+      this.selectedRoleId = ''
     }
   }
 }
@@ -543,11 +639,7 @@ export default {
   margin-right: 20px;
 }
 
-.el-row {
-  margin-bottom: 10px;
-}
-
-.el-pagination {
-  margin-top: 10px;
+.fontSize {
+  font-size: 16px;
 }
 </style>

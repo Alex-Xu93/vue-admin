@@ -8,3 +8,11 @@ html, body, #app {
 .el-breadcrumb {
     margin-bottom: 20px;
 }
+
+.el-table {
+    margin-top: 20px;
+}
+
+.el-pagination {
+    margin-top: 10px;
+  }

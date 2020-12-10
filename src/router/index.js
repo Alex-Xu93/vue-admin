@@ -4,9 +4,10 @@ import VueRouter from 'vue-router'
 // 导入子路由
 import Login from '../components/login/Login.vue'
 import Home from '../components/home/Home.vue'
-import Welecom from '../components/welcom/Welcome.vue'
 import Users from '../components/users/Users.vue'
-import Roles from '../components/roles/Roles.vue'
+import Welecom from '../components/welcom/Welcome.vue'
+import Rights from '../components/power/Rights.vue'
+import Roles from '../components/power/Roles.vue'
 
 Vue.use(VueRouter)
 
@@ -46,6 +47,13 @@ const routes = [
         path: '/users',
         name: 'users',
         component: Users
+      },
+
+      // 权限子组件
+      {
+        path: '/rights',
+        name: 'rights',
+        component: Rights
       },
 
       // 角色子组件
